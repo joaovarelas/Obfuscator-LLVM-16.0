@@ -80,6 +80,8 @@ RUN rustup default ollvm-rust-1.70.0
 #
 # example 1: RUSTCFLAGS="-Cllvm-args=-enable-allobf -Cdebuginfo=0 -Cstrip=symbols -Cpanic=abort -Copt-level=3" cargo +ollvm-rust-1.70.0 build --release  
 # example 2: cargo +ollvm-rust-1.70.0 build -Z build-std=panic_abort,std,core,alloc,proc_macro --target x86_64-pc-windows-gnu --release
+# Example 3: cargo rustc --release -- -Cllvm-args=-enable-allobf -Cdebuginfo=0 -Cstrip=symbols -Cpanic=abort -Copt-level=3
+# will have to tweak rust flags, codegen options and how to pass args to llvm
 # original thread: https://bbs.kanxue.com/thread-274453.htm
 
 WORKDIR /projects/
