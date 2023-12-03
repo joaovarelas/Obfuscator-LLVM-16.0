@@ -50,6 +50,11 @@ RUN python3 x.py build tools/cargo
 
 
 # build some libs to target windows
+RUN python3 x.py build library/std --target x86_64-unknown-linux-gnu
+RUN python3 x.py build library/core --target x86_64-unknown-linux-gnu
+RUN python3 x.py build library/alloc --target x86_64-unknown-linux-gnu
+RUN python3 x.py build library/proc_macro --target x86_64-unknown-linux-gnu
+
 RUN python3 x.py build library/std --target x86_64-pc-windows-gnu
 RUN python3 x.py build library/core --target x86_64-pc-windows-gnu
 RUN python3 x.py build library/alloc --target x86_64-pc-windows-gnu
