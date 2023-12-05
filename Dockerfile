@@ -3,7 +3,7 @@ FROM rust:1.70.0-bullseye
 
 # install dependencies
 RUN apt update -y
-RUN apt install -y cmake ninja-build libc6 libc6-dev git gcc clang-11 python3 
+RUN apt install -y cmake ninja-build libc6 libc6-dev git gcc clang-11 python3 gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64
 
 # get source code for rust-llvm, rust compiler and hikari OLLVM
 WORKDIR /repos
@@ -41,25 +41,12 @@ RUN sed -i 's/#llvm-config = <none> (path)/llvm-config = "\/repos\/llvm-16.0-202
 RUN sed -i 's/#target = build.host (list of triples)/target = ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-gnu"]/' config.toml
 
 
-# build rust compiler stage0 and stage1
-RUN apt install -y gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64
-RUN python3 x.py build
+# build rust compiler
+RUN python3 x.py build 
+RUN python3 x.py build --target x86_64-pc-windows-gnu
 
 # build cargo
-RUN python3 x.py build tools/cargo
-
-
-# build some libs to target windows
-RUN python3 x.py build library/std --target x86_64-unknown-linux-gnu
-RUN python3 x.py build library/core --target x86_64-unknown-linux-gnu
-RUN python3 x.py build library/alloc --target x86_64-unknown-linux-gnu
-RUN python3 x.py build library/proc_macro --target x86_64-unknown-linux-gnu
-
-RUN python3 x.py build library/std --target x86_64-pc-windows-gnu
-RUN python3 x.py build library/core --target x86_64-pc-windows-gnu
-RUN python3 x.py build library/alloc --target x86_64-pc-windows-gnu
-RUN python3 x.py build library/proc_macro --target x86_64-pc-windows-gnu
-
+#RUN python3 x.py build tools/cargo
 
 
 # check toolchains
@@ -78,15 +65,13 @@ RUN rustup toolchain link ollvm-rust-1.70.0 /repos/rust-1.70.0/build/x86_64-unkn
 RUN rustup default ollvm-rust-1.70.0 
 
 
-
-# example compilation flags, use volumes to pass cargo packages into container
+# Example compilation flags, use volumes to pass cargo packages into container
 #
 # docker run -v /my/cargo/proj/:/projects/ -it rustc-ollvm:latest /bin/bash
 #
-# example 1: RUSTCFLAGS="-Cllvm-args=-enable-allobf -Cdebuginfo=0 -Cstrip=symbols -Cpanic=abort -Copt-level=3" cargo +ollvm-rust-1.70.0 build --release  
-# example 2: cargo +ollvm-rust-1.70.0 build -Z build-std=panic_abort,std,core,alloc,proc_macro --target x86_64-pc-windows-gnu --release
-# Example 3: cargo rustc --release -- -Cllvm-args=-enable-allobf -Cdebuginfo=0 -Cstrip=symbols -Cpanic=abort -Copt-level=3
-# will have to tweak rust flags, codegen options and how to pass args to llvm
+# cargo rustc --release -- -Cllvm-args=-enable-allobf -Cdebuginfo=0 -Cstrip=symbols -Cpanic=abort -Copt-level=3
+# cargo rustc --release -- -Cllvm-args=-enable-bcfobf -Cllvm-args=-enable-splitobf -Cllvm-args=-enable-fco -Cllvm-args=-enable-funcwra -Cdebuginfo=0 -Cstrip=symbols -Cpanic=abort -Copt-level=3
+#
 # original thread: https://bbs.kanxue.com/thread-274453.htm
 
 WORKDIR /projects/
