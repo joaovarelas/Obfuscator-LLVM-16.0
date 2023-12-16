@@ -11,10 +11,9 @@ NOTE: You are going to need at least **30GB** of disk space and patience to comp
 Then inside the container:
 
 4. `cd /projects/myproject/`
-5. `RUSTCFLAGS="-Cllvm-args=-enable-allobf" cargo +ollvm-rust-1.70.0 build --release`
+5. `cargo rustc --release -- -Cllvm-args=-enable-allobf -Cdebuginfo=0 -Cstrip=symbols -Cpanic=abort -Copt-level=3`
 
 The executables will be placed at `target/`.
-
 
 
 
